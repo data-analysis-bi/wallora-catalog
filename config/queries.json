@@ -1,0 +1,50 @@
+{
+  "filters": {
+    "max_new_per_run": 120,
+    "max_items": 6000,
+    "per_query": 8,
+    "max_tries_per_query": 70,
+    "max_aspect": 1.0,
+    "min_aspect": 0.4,
+    "min_short_side_original": 1000,
+    "min_long_side_analysis": 500,
+    "block_keywords": ["logo", "insignia", "patch", "poster", "chart", "diagram", "graph", "map of", "text", "signature", "coin", "stamp"]
+  },
+  "queries": {
+    "nasa": [
+      {"q": "nebula", "category": "space", "max_aspect": 1.8},
+      {"q": "galaxy", "category": "space", "max_aspect": 1.8},
+      {"q": "james webb", "category": "space", "max_aspect": 1.8},
+      {"q": "hubble", "category": "space", "max_aspect": 1.8},
+      {"q": "milky way", "category": "space", "max_aspect": 1.8},
+      {"q": "saturn", "category": "space", "max_aspect": 1.8},
+      {"q": "moon", "category": "space", "max_aspect": 1.8},
+      {"q": "earth from space", "category": "space", "max_aspect": 1.8},
+      {"q": "rocket launch", "category": "technology", "max_aspect": 1.4},
+      {"q": "space station", "category": "technology", "max_aspect": 1.4}
+    ],
+    "met": [
+      {"q": "mountains", "category": "mountains", "extra": {"medium": "Paintings|Photographs"}},
+      {"q": "landscape", "category": "nature", "extra": {"medium": "Paintings|Photographs"}},
+      {"q": "forest", "category": "nature", "extra": {"medium": "Paintings|Photographs"}},
+      {"q": "waterfall", "category": "nature", "extra": {"medium": "Paintings|Photographs"}},
+      {"q": "winter", "category": "seasonal", "extra": {"medium": "Paintings|Photographs"}},
+      {"q": "autumn", "category": "seasonal", "extra": {"medium": "Paintings|Photographs"}},
+      {"q": "night", "category": "dark", "extra": {"medium": "Paintings|Photographs"}},
+      {"q": "moonlight", "category": "dark", "extra": {"medium": "Paintings|Photographs"}},
+      {"q": "cathedral", "category": "architecture", "extra": {"medium": "Paintings|Photographs"}},
+      {"q": "abstract", "category": "abstract", "extra": {"medium": "Paintings"}},
+      {"q": "painting", "category": "art", "extra": {"isHighlight": "true", "medium": "Paintings"}}
+    ],
+    "aic": [
+      {"q": "mountain", "category": "mountains"},
+      {"q": "landscape", "category": "nature"},
+      {"q": "river", "category": "nature"},
+      {"q": "winter", "category": "seasonal"},
+      {"q": "night", "category": "dark"},
+      {"q": "architecture", "category": "architecture"},
+      {"q": "abstract", "category": "abstract"},
+      {"q": "impressionism", "category": "art"}
+    ]
+  }
+}

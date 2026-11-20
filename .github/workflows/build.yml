@@ -1,0 +1,55 @@
+name: Build catalog
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: catalog
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Self-test (fake data, no network)
+        run: python scripts/selftest.py
+      - name: Build catalog
+        run: python scripts/build_catalog.py
+      - name: Save data back to the repo
+        run: |
+          git config user.name "wallora-bot"
+          git config user.email "wallora-bot@users.noreply.github.com"
+          git add data
+          if git diff --cached --quiet; then
+            echo "No new data"
+          else
+            git commit -m "Update catalog data"
+            git push
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
