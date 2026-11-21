@@ -68,18 +68,19 @@ def collect(root: Path, data_dir: Path, today: dt.date, time_budget_s: int):
     (data_dir / "thumbs").mkdir(parents=True, exist_ok=True)
     start = time.time()
     added_total = 0
-    stats = defaultdict(int)
+    stats = defaultdict(int)  # new items per source in this run
+    per_source_cap = f.get("max_new_per_source", 45)  # so one source can't use up the whole daily allowance
 
-    def out_of_budget() -> bool:
-        return (added_total >= f["max_new_per_run"] or len(by_id) >= f["max_items"]
-                or time.time() - start > time_budget_s)
+    def out_of_budget(src: str) -> bool:
+        return (added_total >= f["max_new_per_run"] or stats[src] >= per_source_cap
+                or len(by_id) >= f["max_items"] or time.time() - start > time_budget_s)
 
     for source_id, queries in cfg["queries"].items():
         mod = SOURCES.get(source_id)
         if not mod:
             continue
         for qc in queries:
-            if out_of_budget():
+            if out_of_budget(source_id):
                 break
             seen = set(by_id) | rejected | blocked
             max_aspect = qc.get("max_aspect", f["max_aspect"])
@@ -87,7 +88,7 @@ def collect(root: Path, data_dir: Path, today: dt.date, time_budget_s: int):
             got = tries = 0
             for cand in mod.candidates(qc, seen, rng):
                 tries += 1
-                if tries > f["max_tries_per_query"] or out_of_budget():
+                if tries > f["max_tries_per_query"] or out_of_budget(source_id):
                     break
                 cid = cand["id"]
                 seen.add(cid)
