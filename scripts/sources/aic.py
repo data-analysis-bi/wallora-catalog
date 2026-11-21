@@ -8,9 +8,8 @@ FIELDS = "id,title,artist_title,image_id,thumbnail,is_public_domain,classificati
 def candidates(qc, seen, rng):
     params = {
         "q": qc["q"],
-        "query[term][is_public_domain]": "true",
         "fields": FIELDS,
-        "limit": 40,
+        "limit": 100,
         "page": rng.randint(1, 3),
     }
     data = common.get_json(API, params)

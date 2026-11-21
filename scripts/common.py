@@ -31,10 +31,12 @@ def get_json(url, params=None, retries=3):
             r = _session.get(url, params=params, timeout=30)
             if r.status_code == 200:
                 return r.json()
+            print(f"  HTTP {r.status_code} for {url} {params or ''}"[:300])
             if r.status_code in (400, 404):
                 return None
             pause(2 * (attempt + 1))  # 403/429/5xx: back off and retry
-        except (requests.RequestException, ValueError):
+        except (requests.RequestException, ValueError) as e:
+            print(f"  request error for {url}: {e}"[:300])
             pause(1 + attempt)
     return None
 

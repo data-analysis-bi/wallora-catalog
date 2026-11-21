@@ -86,6 +86,7 @@ def collect(root: Path, data_dir: Path, today: dt.date, time_budget_s: int):
             max_aspect = qc.get("max_aspect", f["max_aspect"])
             want = qc.get("per_query", f["per_query"])
             got = tries = 0
+            why = defaultdict(int)
             for cand in mod.candidates(qc, seen, rng):
                 tries += 1
                 if tries > f["max_tries_per_query"] or out_of_budget(source_id):
@@ -94,28 +95,35 @@ def collect(root: Path, data_dir: Path, today: dt.date, time_budget_s: int):
                 seen.add(cid)
                 if cand.get("reject"):
                     rejected.add(cid)
+                    why["not open licence / no image"] += 1
                     continue
                 text = f"{cand.get('title', '')} {cand.get('text', '')}".lower()
                 if any(k in text for k in f["block_keywords"]):
                     rejected.add(cid)
+                    why["blocked word"] += 1
                     continue
                 pre = cand.get("pre_dims")
                 if pre and not dims_ok(pre[0], pre[1], max_aspect, f, original=True):
                     rejected.add(cid)
+                    why["wrong shape or too small"] += 1
                     continue
                 raw = common.get_bytes(cand["thumb_src"])
                 if not raw:
+                    why["download failed"] += 1
                     continue  # network hiccup: try again on a later run
                 info = common.analyze(raw)
                 if not info:
                     rejected.add(cid)
+                    why["unreadable image"] += 1
                     continue
                 w, h = pre or (info["width"], info["height"])
                 if not pre and max(info["width"], info["height"]) < f["min_long_side_analysis"]:
                     rejected.add(cid)
+                    why["too small"] += 1
                     continue
                 if not dims_ok(w, h, max_aspect, f):
                     rejected.add(cid)
+                    why["wrong shape"] += 1
                     continue
                 (data_dir / "thumbs" / f"{cid}.jpg").write_bytes(info["thumb"])
                 by_id[cid] = {
@@ -130,6 +138,8 @@ def collect(root: Path, data_dir: Path, today: dt.date, time_budget_s: int):
                 stats[cand["source"]] += 1
                 if got >= want:
                     break
+            note = "  <-- nothing new (all already collected, or the API returned nothing: check lines above)" if tries == 0 else ""
+            print(f"[{source_id}] {qc['q']!r} -> {qc['category']}: looked at {tries}, added {got}, skipped {dict(why)}{note}")
 
     items = sorted(by_id.values(), key=lambda i: (i["added"], i["id"]), reverse=True)
     (data_dir / "items.json").write_text(json.dumps(items, ensure_ascii=False), encoding="utf-8")

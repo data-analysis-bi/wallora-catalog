@@ -3,7 +3,7 @@
     "max_new_per_run": 150,
     "max_new_per_source": 45,
     "max_items": 6000,
-    "per_query": 8,
+    "per_query": 4,
     "max_tries_per_query": 70,
     "max_aspect": 1.0,
     "min_aspect": 0.4,
